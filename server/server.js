@@ -1,5 +1,6 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
+const _ = require('lodash');
 
 const {
     ObjectID
@@ -79,6 +80,40 @@ app.delete('/todos/:id', (req, resp) => {
     }).catch((e) => {
         resp.status(400).send();
     });
+});
+
+app.patch('/todos/:id', (req, resp) => {
+    var id = req.params.id;
+
+    var body = _.pick(req.body, ['text', 'completed']);
+
+    if (!ObjectID.isValid(id)) {
+        return resp.status(404).send();
+    }
+
+    if (_.isBoolean(body.completed) && body.completed) {
+        body.completedAt = new Date().getTime();
+    } else {
+        body.completed = false;
+        body.completedAt = null;
+    }
+
+    Todo.findByIdAndUpdate(id, {
+        $set: body
+    }, {
+        new: true
+    }).then((todo) => {
+        if (!todo) {
+            return resp.status(400).send();
+        }
+
+        resp.send({
+            todo
+        });
+
+    }).catch((e) => resp.status(400).send())
+
+
 });
 
 app.listen(port, () => {
