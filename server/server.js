@@ -19,6 +19,10 @@ var {
     User
 } = require('./models/user');
 
+var {
+    authenticate
+} = require('./middleware/authenticate');
+
 var app = express();
 const port = process.env.PORT;
 
@@ -113,7 +117,7 @@ app.patch('/todos/:id', (req, resp) => {
             todo
         });
 
-    }).catch((e) => resp.status(400).send())
+    }).catch((e) => resp.status(400).send());
 
 });
 
@@ -131,6 +135,9 @@ app.post('/users', (req, resp) => {
     });
 });
 
+app.get('/users/me', authenticate, (req, resp) => {
+    resp.send(req.user);
+})
 
 app.listen(port, () => {
     console.log(`started on port ${port}`);
