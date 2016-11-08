@@ -152,6 +152,14 @@ app.get('/users/me', authenticate, (req, resp) => {
     resp.send(req.user);
 })
 
+app.delete('/users/me/token', authenticate, (req, resp) => {
+    req.user.removeToken(req.token).then(() => {
+        resp.status(200).send();
+    }, () => {
+        resp.status(400).send();
+    });
+});
+
 app.listen(port, () => {
     console.log(`started on port ${port}`);
 });
